@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<SyntaxDefinition name="Markdown" xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+    <Color name="Heading" foreground="#0000FF" fontWeight="bold" />
+    <Color name="Emphasis" foreground="#008000" fontStyle="italic" />
+    <Color name="StrongEmphasis" foreground="#008000" fontWeight="bold" />
+    <Color name="Code" foreground="#800000" fontFamily="Consolas" />
+    <Color name="BlockQuote" foreground="#666666" fontStyle="italic" />
+    <Color name="Link" foreground="#0000EE" underline="true" />
+    <Color name="Image" foreground="#FF8C00" />
+    <Color name="List" foreground="#000080" />
+
+    <RuleSet ignoreCase="false">
+        <!-- Headings -->
+        <Rule color="Heading">
+            ^\#{1,6}\s+.*$
+        </Rule>
+
+        <!-- Strong emphasis (bold) -->
+        <Rule color="StrongEmphasis">
+            \*\*[^\*]+\*\*
+        </Rule>
+        <Rule color="StrongEmphasis">
+            __[^_]+__
+        </Rule>
+
+        <!-- Emphasis (italic) -->
+        <Rule color="Emphasis">
+            \*[^\*]+\*
+        </Rule>
+        <Rule color="Emphasis">
+            _[^_]+_
+        </Rule>
+
+        <!-- Inline code -->
+        <Rule color="Code">
+            `[^`]+`
+        </Rule>
+
+        <!-- Code blocks -->
+        <Rule color="Code">
+            ^```[\s\S]*?^```
+        </Rule>
+
+        <!-- Block quotes -->
+        <Rule color="BlockQuote">
+            ^&gt;.*$
+        </Rule>
+
+        <!-- Links -->
+        <Rule color="Link">
+            \[([^\]]+)\]\(([^\)]+)\)
+        </Rule>
+
+        <!-- Images -->
+        <Rule color="Image">
+            !\[([^\]]*)\]\(([^\)]+)\)
+        </Rule>
+
+        <!-- Lists -->
+        <Rule color="List">
+            ^[\s]*[-*+]\s+
+        </Rule>
+        <Rule color="List">
+            ^[\s]*\d+\.\s+
+        </Rule>
+    </RuleSet>
+</SyntaxDefinition>
