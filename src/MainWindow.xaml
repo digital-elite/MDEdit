@@ -1,0 +1,50 @@
+<Window x:Class="MDEdit.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="MDEdit - Markdown Editor" Height="700" Width="1200"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Open..." Click="Open_Click" InputGestureText="Ctrl+O"/>
+                <MenuItem Header="_Save" Click="Save_Click" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="Save _As..." Click="SaveAs_Click"/>
+                <Separator/>
+                <MenuItem Header="_Export to DOCX..." Click="ExportDocx_Click"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="Exit_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: Markdown Source Editor -->
+            <TextBox x:Name="MarkdownEditor"
+                     Grid.Column="0"
+                     AcceptsReturn="True"
+                     AcceptsTab="True"
+                     TextWrapping="Wrap"
+                     VerticalScrollBarVisibility="Auto"
+                     HorizontalScrollBarVisibility="Auto"
+                     FontFamily="Consolas"
+                     FontSize="14"
+                     TextChanged="MarkdownEditor_TextChanged"/>
+
+            <!-- Splitter -->
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Stretch"
+                          Background="LightGray"/>
+
+            <!-- Right: HTML Preview -->
+            <wv2:WebView2 x:Name="PreviewWebView"
+                          Grid.Column="2"/>
+        </Grid>
+    </DockPanel>
+</Window>

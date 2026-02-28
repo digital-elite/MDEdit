@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <Package Name="MDEdit"
+           Manufacturer="MDEdit"
+           Version="1.0.0.0"
+           UpgradeCode="8F5E3A2D-9C4B-4E6F-A1D7-3B8C9E0F2A5D"
+           Compressed="yes">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of MDEdit is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="MDEdit">
+        <Component Id="MainExecutable" Guid="1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D">
+          <File Id="MDEditExe" Source="$(MDEdit.TargetDir)\MDEdit.exe" KeyPath="yes">
+            <Shortcut Id="StartMenuShortcut"
+                      Name="MDEdit"
+                      Directory="ProgramMenuFolder"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Advertise="yes" />
+          </File>
+        </Component>
+
+        <Component Id="Dependencies" Guid="2B3C4D5E-6F7A-8B9C-0D1E-2F3A4B5C6D7E">
+          <File Source="$(MDEdit.TargetDir)\MDEdit.dll" />
+          <File Source="$(MDEdit.TargetDir)\MDEdit.deps.json" />
+          <File Source="$(MDEdit.TargetDir)\MDEdit.runtimeconfig.json" />
+        </Component>
+
+        <Component Id="MarkdigDependency" Guid="3C4D5E6F-7A8B-9C0D-1E2F-3A4B5C6D7E8F">
+          <File Source="$(MDEdit.TargetDir)\Markdig.dll" />
+        </Component>
+
+        <Component Id="OpenXmlDependencies" Guid="4D5E6F7A-8B9C-0D1E-2F3A-4B5C6D7E8F9A">
+          <File Source="$(MDEdit.TargetDir)\DocumentFormat.OpenXml.dll" />
+          <File Source="$(MDEdit.TargetDir)\DocumentFormat.OpenXml.Framework.dll" />
+        </Component>
+
+        <Component Id="WebView2Dependency" Guid="5E6F7A8B-9C0D-1E2F-3A4B-5C6D7E8F9A0B">
+          <File Source="$(MDEdit.TargetDir)\Microsoft.Web.WebView2.Core.dll" />
+          <File Source="$(MDEdit.TargetDir)\Microsoft.Web.WebView2.Wpf.dll" />
+          <File Source="$(MDEdit.TargetDir)\Microsoft.Web.WebView2.WinForms.dll" />
+        </Component>
+
+        <Directory Id="RuntimesFolder" Name="runtimes">
+          <Directory Id="WinX64Folder" Name="win-x64">
+            <Directory Id="NativeFolder" Name="native">
+              <Component Id="WebView2Loader" Guid="6F7A8B9C-0D1E-2F3A-4B5C-6D7E8F9A0B1C">
+                <File Source="$(MDEdit.TargetDir)\runtimes\win-x64\native\WebView2Loader.dll" />
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="ProductFeature" Title="MDEdit" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="Dependencies" />
+      <ComponentRef Id="MarkdigDependency" />
+      <ComponentRef Id="OpenXmlDependencies" />
+      <ComponentRef Id="WebView2Dependency" />
+      <ComponentRef Id="WebView2Loader" />
+    </Feature>
+
+  </Package>
+
+</Wix>
