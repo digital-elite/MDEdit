@@ -15,8 +15,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        InitializeWebView();
         SetupPreviewTimer();
+        Loaded += MainWindow_Loaded;
 
         // Set initial sample markdown
         MarkdownEditor.Text = @"# Welcome to MDEdit
@@ -41,6 +41,11 @@ Console.WriteLine(""Hello, World!"");
 2. Second item
 3. Third item
 ";
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        InitializeWebView();
     }
 
     private async void InitializeWebView()
