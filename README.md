@@ -17,7 +17,7 @@ A lightweight Markdown editor for Windows with live preview and DOCX export supp
 ├────────────────────────────┬────────────────────────────────────┤
 │ # Welcome to MDEdit        │  Welcome to MDEdit                 │
 │                            │                                    │
-│ This is **bold** and       │  This is bold and italic text.    │
+│ This is **bold** and       │  This is bold and italic text.     │
 │ *italic* text.             │                                    │
 │                            │  • List item 1                     │
 │ - List item 1              │  • List item 2                     │
