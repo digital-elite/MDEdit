@@ -8,18 +8,18 @@ namespace MDEdit;
 
 public partial class MainWindow : Window
 {
-    private string? _currentFilePath;
-    private DispatcherTimer? _previewTimer;
-    private bool _isModified;
+  private string? _currentFilePath;
+  private DispatcherTimer? _previewTimer;
+  private bool _isModified;
 
-    public MainWindow()
-    {
-        InitializeComponent();
-        SetupPreviewTimer();
-        Loaded += MainWindow_Loaded;
+  public MainWindow()
+  {
+    InitializeComponent();
+    SetupPreviewTimer();
+    Loaded += MainWindow_Loaded;
 
-        // Set initial sample markdown
-        MarkdownEditor.Text = @"# Welcome to MDEdit
+    // Set initial sample markdown
+    MarkdownEditor.Text = "";/* @"# Welcome to MDEdit
 
 This is a **Markdown** editor with *live preview*.
 
@@ -49,123 +49,123 @@ Console.WriteLine(""Hello, World!"");
 | Orange | Orange fruit growing on trees with citrus smell |
 
 
-";
+";*/
+  }
+
+  private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+  {
+    InitializeWebView();
+  }
+
+  private async void InitializeWebView()
+  {
+    await PreviewWebView.EnsureCoreWebView2Async();
+    UpdatePreview();
+  }
+
+  private void SetupPreviewTimer()
+  {
+    _previewTimer = new DispatcherTimer
+    {
+      Interval = TimeSpan.FromMilliseconds(300)
+    };
+    _previewTimer.Tick += (s, e) =>
+    {
+      _previewTimer.Stop();
+      UpdatePreview();
+    };
+  }
+
+  private void MarkdownEditor_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+  {
+    _isModified = true;
+    _previewTimer?.Stop();
+    _previewTimer?.Start();
+  }
+
+  private void UpdatePreview()
+  {
+    if ( PreviewWebView.CoreWebView2 == null ) return;
+
+    string markdown = MarkdownEditor.Text;
+    string html = MarkdownService.ConvertToHtml(markdown);
+    PreviewWebView.NavigateToString(html);
+  }
+
+  private void Open_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new OpenFileDialog
+    {
+      Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*",
+      Title = "Open Markdown File"
+    };
+
+    if ( dialog.ShowDialog() == true )
+    {
+      _currentFilePath = dialog.FileName;
+      MarkdownEditor.Text = File.ReadAllText(_currentFilePath);
+      _isModified = false;
+      Title = $"MDEdit - {Path.GetFileName(_currentFilePath)}";
+    }
+  }
+
+  private void Save_Click(object sender, RoutedEventArgs e)
+  {
+    if ( string.IsNullOrEmpty(_currentFilePath) )
+    {
+      SaveAs_Click(sender, e);
+      return;
     }
 
-    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    File.WriteAllText(_currentFilePath, MarkdownEditor.Text);
+    _isModified = false;
+  }
+
+  private void SaveAs_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new SaveFileDialog
     {
-        InitializeWebView();
+      Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*",
+      Title = "Save Markdown File",
+      DefaultExt = ".md"
+    };
+
+    if ( dialog.ShowDialog() == true )
+    {
+      _currentFilePath = dialog.FileName;
+      File.WriteAllText(_currentFilePath, MarkdownEditor.Text);
+      _isModified = false;
+      Title = $"MDEdit - {Path.GetFileName(_currentFilePath)}";
     }
+  }
 
-    private async void InitializeWebView()
+  private void ExportDocx_Click(object sender, RoutedEventArgs e)
+  {
+    var dialog = new SaveFileDialog
     {
-        await PreviewWebView.EnsureCoreWebView2Async();
-        UpdatePreview();
+      Filter = "Word Document (*.docx)|*.docx",
+      Title = "Export to DOCX",
+      DefaultExt = ".docx"
+    };
+
+    if ( dialog.ShowDialog() == true )
+    {
+      try
+      {
+        DocxExportService.Export(MarkdownEditor.Text, dialog.FileName);
+        MessageBox.Show($"Successfully exported to:\n{dialog.FileName}", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+      }
+      catch ( Exception ex )
+      {
+        MessageBox.Show($"Export failed: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      }
     }
+  }
 
-    private void SetupPreviewTimer()
-    {
-        _previewTimer = new DispatcherTimer
-        {
-            Interval = TimeSpan.FromMilliseconds(300)
-        };
-        _previewTimer.Tick += (s, e) =>
-        {
-            _previewTimer.Stop();
-            UpdatePreview();
-        };
-    }
-
-    private void MarkdownEditor_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-    {
-        _isModified = true;
-        _previewTimer?.Stop();
-        _previewTimer?.Start();
-    }
-
-    private void UpdatePreview()
-    {
-        if (PreviewWebView.CoreWebView2 == null) return;
-
-        string markdown = MarkdownEditor.Text;
-        string html = MarkdownService.ConvertToHtml(markdown);
-        PreviewWebView.NavigateToString(html);
-    }
-
-    private void Open_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog
-        {
-            Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*",
-            Title = "Open Markdown File"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            _currentFilePath = dialog.FileName;
-            MarkdownEditor.Text = File.ReadAllText(_currentFilePath);
-            _isModified = false;
-            Title = $"MDEdit - {Path.GetFileName(_currentFilePath)}";
-        }
-    }
-
-    private void Save_Click(object sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrEmpty(_currentFilePath))
-        {
-            SaveAs_Click(sender, e);
-            return;
-        }
-
-        File.WriteAllText(_currentFilePath, MarkdownEditor.Text);
-        _isModified = false;
-    }
-
-    private void SaveAs_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new SaveFileDialog
-        {
-            Filter = "Markdown files (*.md)|*.md|All files (*.*)|*.*",
-            Title = "Save Markdown File",
-            DefaultExt = ".md"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            _currentFilePath = dialog.FileName;
-            File.WriteAllText(_currentFilePath, MarkdownEditor.Text);
-            _isModified = false;
-            Title = $"MDEdit - {Path.GetFileName(_currentFilePath)}";
-        }
-    }
-
-    private void ExportDocx_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new SaveFileDialog
-        {
-            Filter = "Word Document (*.docx)|*.docx",
-            Title = "Export to DOCX",
-            DefaultExt = ".docx"
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            try
-            {
-                DocxExportService.Export(MarkdownEditor.Text, dialog.FileName);
-                MessageBox.Show($"Successfully exported to:\n{dialog.FileName}", "Export Complete",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Export failed: {ex.Message}", "Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-        }
-    }
-
-    private void Exit_Click(object sender, RoutedEventArgs e)
-    {
+  private void Exit_Click(object sender, RoutedEventArgs e)
+  {
+    if ( _isModified )
+      if ( MessageBox.Show("Are you sure you want to leave without saving?", "Unsaved Changes", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes )
         Close();
-    }
+  }
 }
