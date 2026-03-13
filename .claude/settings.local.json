@@ -11,7 +11,15 @@
       "Bash(dotnet publish:*)",
       "Bash(dir:*)",
       "Bash(del test_table.md test_output.docx)",
-      "Bash(cmd /c \"del test_table.md test_output.docx\")"
+      "Bash(cmd /c \"del test_table.md test_output.docx\")",
+      "Bash(dotnet --version:*)",
+      "Bash(sn -k:*)",
+      "Bash(powershell -Command \"$key = [System.Reflection.StrongNameKeyPair]::new\\([byte[]]::new\\(596\\)\\); $rng = [System.Security.Cryptography.RNGCryptoServiceProvider]::new\\(\\); $keyPair = [System.Security.Cryptography.RSACryptoServiceProvider]::new\\(1024\\); $keyBytes = $keyPair.ExportCspBlob\\($true\\); [System.IO.File]::WriteAllBytes\\(''src/MDEdit.snk'', $keyBytes\\)\")",
+      "Bash(powershell -Command \"$rsa = [System.Security.Cryptography.RSACryptoServiceProvider]::new\\(1024\\); $keyBytes = $rsa.ExportCspBlob\\($true\\); [System.IO.File]::WriteAllBytes\\(''src/MDEdit.snk'', $keyBytes\\); $rsa.Dispose\\(\\)\")",
+      "Bash(powershell -ExecutionPolicy Bypass -File generate-key.ps1)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File verify-signing.ps1:*)",
+      "Bash(git add:*)"
     ]
   }
 }
