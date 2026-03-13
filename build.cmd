@@ -4,6 +4,16 @@ setlocal
 echo Building MDEdit...
 echo.
 
+:: Increment build number
+echo Incrementing build number...
+powershell -ExecutionPolicy Bypass -File "%~dp0IncrementBuildNumber.ps1"
+if errorlevel 1 (
+    echo.
+    echo Failed to increment build number!
+    exit /b 1
+)
+echo.
+
 :: Clean previous builds
 dotnet clean -c Release -v q
 

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
 using MDEdit.Services;
@@ -59,8 +60,32 @@ Console.WriteLine(""Hello, World!"");
 
   private async void InitializeWebView()
   {
-    await PreviewWebView.EnsureCoreWebView2Async();
-    UpdatePreview();
+    try
+    {
+      await PreviewWebView.EnsureCoreWebView2Async();
+      UpdatePreview();
+    }
+    catch ( System.Runtime.InteropServices.COMException ex ) when ( ex.HResult == unchecked((int)0x80080005) )
+    {
+      MessageBox.Show(
+        "Failed to initialize the preview panel.\n\n" +
+        "WebView2 Runtime may not be installed or is corrupted.\n\n" +
+        "Please download and install WebView2 Runtime from:\n" +
+        "https://developer.microsoft.com/microsoft-edge/webview2/\n\n" +
+        "The editor will continue without live preview.",
+        "WebView2 Initialization Failed",
+        MessageBoxButton.OK,
+        MessageBoxImage.Warning);
+    }
+    catch ( Exception ex )
+    {
+      MessageBox.Show(
+        $"Failed to initialize preview: {ex.Message}\n\n" +
+        "The editor will continue without live preview.",
+        "Preview Initialization Error",
+        MessageBoxButton.OK,
+        MessageBoxImage.Warning);
+    }
   }
 
   private void SetupPreviewTimer()
@@ -167,5 +192,17 @@ Console.WriteLine(""Hello, World!"");
     if ( _isModified )
       if ( MessageBox.Show("Are you sure you want to leave without saving?", "Unsaved Changes", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes )
         Close();
+  }
+
+  private void About_Click(object sender, RoutedEventArgs e)
+  {
+    var version = Assembly.GetExecutingAssembly().GetName().Version;
+    string versionString = version != null ? $"{version.Major}.{version.Minor}.{version.Build}" : "Unknown";
+
+    MessageBox.Show(
+      $"MDEdit - Markdown Editor\n\nVersion {versionString}\n\nA simple Markdown editor with live preview and DOCX export.",
+      "About MDEdit",
+      MessageBoxButton.OK,
+      MessageBoxImage.Information);
   }
 }

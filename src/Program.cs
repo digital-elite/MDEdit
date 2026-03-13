@@ -16,7 +16,7 @@ public class Program
   [STAThread]
   public static int Main(string[] args)
   {
-    if ( args.Length >= 3 && args[0] == "--export" )
+    if ( args.Length >= 3 && (args[0] == "--export" || args[0] == "--e") )
     {
       AttachConsole(ATTACH_PARENT_PROCESS);
       return RunExport(args[1], args[2]);

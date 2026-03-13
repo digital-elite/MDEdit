@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <!-- Read build number from file -->
+    <BuildNumberFile>$(MSBuildThisFileDirectory)BuildNumber.txt</BuildNumberFile>
+    <BuildNumber>0</BuildNumber>
+    <BuildNumber Condition="Exists('$(BuildNumberFile)')">$([System.IO.File]::ReadAllText('$(BuildNumberFile)').Trim())</BuildNumber>
+
+    <!-- Version format: Major.Minor.Build -->
+    <VersionPrefix>1.4</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <Version>$(VersionPrefix).$(BuildNumber)</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+  </PropertyGroup>
+</Project>
