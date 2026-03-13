@@ -4,6 +4,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using MarkdigTable = Markdig.Extensions.Tables;
 
 namespace MDEdit.Services;
 
@@ -101,6 +102,10 @@ public static class DocxExportService
                         new BottomBorder { Val = BorderValues.Single, Size = 6, Color = "CCCCCC" }
                     ))
                 ));
+                break;
+
+            case MarkdigTable.Table table:
+                ProcessTable(table, body);
                 break;
 
             case ContainerBlock container:
@@ -234,6 +239,121 @@ public static class DocxExportService
             {
                 ProcessBlock(block, body);
             }
+        }
+    }
+
+    private static void ProcessTable(MarkdigTable.Table markdigTable, Body body)
+    {
+        var table = new DocumentFormat.OpenXml.Wordprocessing.Table();
+
+        // Table properties with borders
+        var tableProps = new TableProperties(
+            new TableBorders(
+                new TopBorder { Val = BorderValues.Single, Size = 4, Color = "000000" },
+                new BottomBorder { Val = BorderValues.Single, Size = 4, Color = "000000" },
+                new LeftBorder { Val = BorderValues.Single, Size = 4, Color = "000000" },
+                new RightBorder { Val = BorderValues.Single, Size = 4, Color = "000000" },
+                new InsideHorizontalBorder { Val = BorderValues.Single, Size = 4, Color = "000000" },
+                new InsideVerticalBorder { Val = BorderValues.Single, Size = 4, Color = "000000" }
+            ),
+            new TableWidth { Type = TableWidthUnitValues.Pct, Width = "5000" } // 100% width
+        );
+        table.Append(tableProps);
+
+        bool isHeaderRow = true;
+        foreach (var block in markdigTable)
+        {
+            if (block is MarkdigTable.TableRow markdigRow)
+            {
+                var row = new DocumentFormat.OpenXml.Wordprocessing.TableRow();
+
+                foreach (var cellBlock in markdigRow)
+                {
+                    if (cellBlock is MarkdigTable.TableCell markdigCell)
+                    {
+                        var cell = new DocumentFormat.OpenXml.Wordprocessing.TableCell();
+
+                        // Cell properties
+                        var cellProps = new TableCellProperties(
+                            new TableCellVerticalAlignment { Val = TableVerticalAlignmentValues.Center }
+                        );
+
+                        // Header row styling - gray background
+                        if (isHeaderRow)
+                        {
+                            cellProps.Append(new Shading { Val = ShadingPatternValues.Clear, Fill = "E0E0E0" });
+                        }
+
+                        cell.Append(cellProps);
+
+                        // Process cell content
+                        var para = new Paragraph();
+
+                        // Bold for header cells
+                        if (isHeaderRow)
+                        {
+                            foreach (var cellContent in markdigCell)
+                            {
+                                if (cellContent is ParagraphBlock paragraphBlock && paragraphBlock.Inline != null)
+                                {
+                                    foreach (var inline in paragraphBlock.Inline)
+                                    {
+                                        ProcessInlineWithBold(inline, para);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (var cellContent in markdigCell)
+                            {
+                                if (cellContent is ParagraphBlock paragraphBlock && paragraphBlock.Inline != null)
+                                {
+                                    foreach (var inline in paragraphBlock.Inline)
+                                    {
+                                        ProcessInline(inline, para);
+                                    }
+                                }
+                            }
+                        }
+
+                        cell.Append(para);
+                        row.Append(cell);
+                    }
+                }
+
+                table.Append(row);
+                isHeaderRow = false;
+            }
+        }
+
+        body.Append(table);
+        // Add spacing after table
+        body.Append(new Paragraph());
+    }
+
+    private static void ProcessInlineWithBold(Inline inline, Paragraph paragraph)
+    {
+        switch (inline)
+        {
+            case LiteralInline literal:
+                paragraph.Append(new Run(
+                    new RunProperties(new Bold()),
+                    new Text(literal.Content.ToString()) { Space = SpaceProcessingModeValues.Preserve }
+                ));
+                break;
+
+            case ContainerInline container:
+                foreach (var child in container)
+                {
+                    ProcessInlineWithBold(child, paragraph);
+                }
+                break;
+
+            default:
+                // Fall back to regular processing for other inline types
+                ProcessInline(inline, paragraph);
+                break;
         }
     }
 

@@ -8,7 +8,10 @@
       "Bash(dotnet run:*)",
       "Bash(dotnet sln:*)",
       "Bash(cmd.exe /c \"D:\\\\Projects\\\\MDEdit\\\\build.cmd\")",
-      "Bash(dotnet publish:*)"
+      "Bash(dotnet publish:*)",
+      "Bash(dir:*)",
+      "Bash(del test_table.md test_output.docx)",
+      "Bash(cmd /c \"del test_table.md test_output.docx\")"
     ]
   }
 }
