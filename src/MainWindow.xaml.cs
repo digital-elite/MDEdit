@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Threading;
 using MDEdit.Services;
 using Microsoft.Win32;
+using Microsoft.Web.WebView2.Core;
 
 namespace MDEdit;
 
@@ -62,7 +63,22 @@ Console.WriteLine(""Hello, World!"");
   {
     try
     {
-      await PreviewWebView.EnsureCoreWebView2Async();
+      // Set user data folder to AppData\Local to avoid permission issues
+      string userDataFolder = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "MDEdit",
+        "WebView2");
+
+      // Ensure the directory exists
+      Directory.CreateDirectory(userDataFolder);
+
+      // Create environment with custom user data folder
+      var environment = await CoreWebView2Environment.CreateAsync(
+        browserExecutableFolder: null,
+        userDataFolder: userDataFolder);
+
+      // Initialize WebView2 with the custom environment
+      await PreviewWebView.EnsureCoreWebView2Async(environment);
       UpdatePreview();
     }
     catch ( System.Runtime.InteropServices.COMException ex ) when ( ex.HResult == unchecked((int)0x80080005) )

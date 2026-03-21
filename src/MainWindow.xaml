@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="MDEdit - Markdown Editor" Height="700" Width="1200"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" FontSize="14">
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
+        <Menu DockPanel.Dock="Top" Height="21" FontSize="14">
             <MenuItem Header="_File">
                 <MenuItem Header="_Open..." Click="Open_Click" InputGestureText="Ctrl+O"/>
                 <MenuItem Header="_Save" Click="Save_Click" InputGestureText="Ctrl+S"/>
