@@ -9,7 +9,20 @@
     <Description>MD file editor and convertor</Description>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>MDEdit.snk</AssemblyOriginatorKeyFile>
+    <ApplicationIcon>mdedit.ico</ApplicationIcon>
+    <PackageIcon>mdedit_preview.png</PackageIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="mdedit.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\assets\mdedit_preview.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.37.0" />

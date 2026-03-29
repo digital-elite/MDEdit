@@ -3,7 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="MDEdit - Markdown Editor" Height="700" Width="1200"
-        WindowStartupLocation="CenterScreen" FontSize="14">
+        WindowStartupLocation="CenterScreen" FontSize="14"
+        AllowDrop="True"
+        DragOver="Window_DragOver"
+        Drop="Window_Drop">
     <DockPanel>
         <Menu DockPanel.Dock="Top" Height="21" FontSize="14">
             <MenuItem Header="_File">

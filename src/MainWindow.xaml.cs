@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Threading;
@@ -13,9 +14,11 @@ public partial class MainWindow : Window
   private string? _currentFilePath;
   private DispatcherTimer? _previewTimer;
   private bool _isModified;
+  private string? _initialFilePath;
 
-  public MainWindow()
+  public MainWindow(string? initialFilePath = null)
   {
+    _initialFilePath = initialFilePath;
     InitializeComponent();
     SetupPreviewTimer();
     Loaded += MainWindow_Loaded;
@@ -80,6 +83,12 @@ Console.WriteLine(""Hello, World!"");
       // Initialize WebView2 with the custom environment
       await PreviewWebView.EnsureCoreWebView2Async(environment);
       UpdatePreview();
+
+      // Open initial file if provided
+      if (!string.IsNullOrEmpty(_initialFilePath))
+      {
+        OpenFile(_initialFilePath);
+      }
     }
     catch ( System.Runtime.InteropServices.COMException ex ) when ( ex.HResult == unchecked((int)0x80080005) )
     {
@@ -133,6 +142,105 @@ Console.WriteLine(""Hello, World!"");
     PreviewWebView.NavigateToString(html);
   }
 
+  private bool CheckUnsavedChanges()
+  {
+    if (!_isModified)
+      return true;
+
+    var result = MessageBox.Show(
+      "You have unsaved changes. Do you want to discard them?",
+      "Unsaved Changes",
+      MessageBoxButton.YesNo,
+      MessageBoxImage.Warning);
+
+    return result == MessageBoxResult.Yes;
+  }
+
+  private bool OpenFile(string filePath)
+  {
+    if (!File.Exists(filePath))
+    {
+      MessageBox.Show(
+        $"File not found:\n{filePath}",
+        "Error",
+        MessageBoxButton.OK,
+        MessageBoxImage.Error);
+      return false;
+    }
+
+    if (!CheckUnsavedChanges())
+      return false;
+
+    try
+    {
+      string content = File.ReadAllText(filePath);
+      _currentFilePath = filePath;
+      MarkdownEditor.Text = content;
+      _isModified = false;
+      Title = $"MDEdit - {Path.GetFileName(filePath)}";
+      UpdatePreview();
+      return true;
+    }
+    catch (Exception ex)
+    {
+      MessageBox.Show(
+        $"Failed to open file:\n{ex.Message}",
+        "Error",
+        MessageBoxButton.OK,
+        MessageBoxImage.Error);
+      return false;
+    }
+  }
+
+  private void Window_DragOver(object sender, DragEventArgs e)
+  {
+    if (e.Data.GetDataPresent(DataFormats.FileDrop))
+    {
+      var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+      if (files.Any(f => f.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ||
+                         f.EndsWith(".markdown", StringComparison.OrdinalIgnoreCase)))
+      {
+        e.Effects = DragDropEffects.Copy;
+      }
+      else
+      {
+        e.Effects = DragDropEffects.None;
+      }
+    }
+    else
+    {
+      e.Effects = DragDropEffects.None;
+    }
+    e.Handled = true;
+  }
+
+  private void Window_Drop(object sender, DragEventArgs e)
+  {
+    try
+    {
+      if (e.Data.GetDataPresent(DataFormats.FileDrop))
+      {
+        var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+        var mdFile = files.FirstOrDefault(f =>
+          f.EndsWith(".md", StringComparison.OrdinalIgnoreCase) ||
+          f.EndsWith(".markdown", StringComparison.OrdinalIgnoreCase));
+
+        if (mdFile != null)
+        {
+          OpenFile(mdFile);
+        }
+      }
+    }
+    catch (Exception ex)
+    {
+      MessageBox.Show(
+        $"Failed to open dropped file:\n{ex.Message}",
+        "Error",
+        MessageBoxButton.OK,
+        MessageBoxImage.Error);
+    }
+  }
+
   private void Open_Click(object sender, RoutedEventArgs e)
   {
     var dialog = new OpenFileDialog
@@ -143,10 +251,7 @@ Console.WriteLine(""Hello, World!"");
 
     if ( dialog.ShowDialog() == true )
     {
-      _currentFilePath = dialog.FileName;
-      MarkdownEditor.Text = File.ReadAllText(_currentFilePath);
-      _isModified = false;
-      Title = $"MDEdit - {Path.GetFileName(_currentFilePath)}";
+      OpenFile(dialog.FileName);
     }
   }
 

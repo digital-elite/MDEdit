@@ -29,10 +29,35 @@ public class Program
       return 0;
     }
 
-    // No arguments or unrecognized - launch GUI
+    // Check if first argument is a file path (doesn't start with -)
+    string? fileToOpen = null;
+    if ( args.Length > 0 && !args[0].StartsWith("-") )
+    {
+      string filePath = Path.GetFullPath(args[0]);
+      if ( !IsValidMarkdownFile(filePath) )
+      {
+        AttachConsole(ATTACH_PARENT_PROCESS);
+        Console.Error.WriteLine($"Error: File not found or not a markdown file: {args[0]}");
+        Console.Error.WriteLine("Supported extensions: .md, .markdown");
+        return 1;
+      }
+      fileToOpen = filePath;
+    }
+
+    // Launch GUI with optional file
     var app = new Application();
-    app.Run(new MainWindow());
+    app.Run(new MainWindow(fileToOpen));
     return 0;
+  }
+
+  private static bool IsValidMarkdownFile(string path)
+  {
+    if (!File.Exists(path))
+      return false;
+
+    string ext = Path.GetExtension(path);
+    return ext.Equals(".md", StringComparison.OrdinalIgnoreCase) ||
+           ext.Equals(".markdown", StringComparison.OrdinalIgnoreCase);
   }
 
   private static int RunExport(string inputPath, string outputPath)
@@ -63,6 +88,7 @@ public class Program
     Console.WriteLine();
     Console.WriteLine("Usage:");
     Console.WriteLine("  MDEdit.exe                                 Launch GUI editor");
+    Console.WriteLine("  MDEdit.exe <file.md>                       Open file in GUI editor");
     Console.WriteLine("  MDEdit.exe --export input.md output.docx   Export markdown to DOCX");
     Console.WriteLine("  MDEdit.exe --help                          Show this help message");
   }
