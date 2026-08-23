@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Preview\inline-markdown.js" LogicalName="MDEdit.Preview.inline-markdown.js" />
+    <EmbeddedResource Include="Preview\editor.js" LogicalName="MDEdit.Preview.editor.js" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\assets\mdedit_preview.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
